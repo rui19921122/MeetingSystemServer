@@ -44,4 +44,5 @@ class ChangePasswordView(APIView):
         serializer.is_valid(raise_exception=True)
         password = serializer.validated_data.get('password')
         request.user.set_password(password)
+        request.user.save()
         return Response({'status': 'success'})
