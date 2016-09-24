@@ -26,6 +26,7 @@ class Department(models.Model):
 class Job(models.Model):
     job_name = models.CharField(max_length=20, verbose_name='职名')
     should_attend_meeting = models.BooleanField(verbose_name='是否参与点名')
+    department = models.ForeignKey('base.Department', verbose_name='职位')
 
     class Meta:
         verbose_name = '职务'

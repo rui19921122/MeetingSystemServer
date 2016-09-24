@@ -9,6 +9,7 @@ class Worker(models.Model):
     job = models.ForeignKey('base.Job', verbose_name='工种')
     class_number = models.PositiveSmallIntegerField(verbose_name='班次')
     is_study = models.BooleanField(default=False, verbose_name='是否为学员')
+    department = models.ForeignKey('base.Department',verbose_name='部门')
 
     class Meta:
         verbose_name = '职工(参与点名人员)'
@@ -25,7 +26,8 @@ class Worker(models.Model):
 
 
 class SystemUser(models.Model):
-    user = models.OneToOneField(User, verbose_name='登陆用户名')
+    user = models.OneToOneField(User, verbose_name='登陆用户名',
+                                related_name='user')
     department = models.ForeignKey('base.Department', verbose_name='部门')
     name = models.CharField(verbose_name='姓名', max_length=20)
 

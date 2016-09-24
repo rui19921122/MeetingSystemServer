@@ -17,23 +17,23 @@ class TestAuthLoginBase(APITestCase):
         set_up_normal_data()
 
     def test_login(self):
-        data = {'username': '测试用户', 'password': '111111'}
+        data = {'username': 'test_user', 'password': '111111'}
         url = reverse("base-login")
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 200, response.data)
 
     def test_logout(self):
         url = reverse('logout')
-        self.client.login(username='测试用户',
+        self.client.login(username='test_user',
                           password='111111')
         response = self.client.post(url)
         self.assertEqual(response.status_code, 200, response.data)
 
     def test_change_password(self):
         url = reverse("change-password")
-        self.client.login(username='测试用户',
+        self.client.login(username='test_user',
                           password='111111')
         data = {'password': '222222'}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.get(username="测试用户").check_password('222222'), True)
+        self.assertEqual(User.objects.get(username="test_user").check_password('222222'), True)

@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .serializers import ChangePasswordSer
 
@@ -44,4 +45,5 @@ class ChangePasswordView(APIView):
         serializer.is_valid(raise_exception=True)
         password = serializer.validated_data.get('password')
         request.user.set_password(password)
+        request.user.save()
         return Response({'status': 'success'})

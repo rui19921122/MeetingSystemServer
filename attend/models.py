@@ -2,8 +2,9 @@ from django.db import models
 from base.models import ClassNumberTable
 import datetime
 
-
 # Create your models here.
+from person.models import Worker
+
 
 class AttendTable(models.Model):
     department = models.ForeignKey('base.Department', verbose_name='部门')
@@ -13,7 +14,8 @@ class AttendTable(models.Model):
     ),
         verbose_name='班别')
     date = models.DateField(verbose_name='日期')
-    create_time = models.DateTimeField(verbose_name='创建时间', blank=True)
+    create_time = models.DateTimeField(verbose_name='创建时间', blank=True,
+                                       auto_created=True)
     lock_time = models.TimeField(verbose_name='锁定时间(开始时间)', null=True, blank=True)
     lock_person = models.ForeignKey('person.SystemUser', verbose_name='锁定人', null=True, blank=True)
     end_time = models.TimeField(verbose_name='结束时间', null=True, blank=True)
@@ -35,7 +37,14 @@ class AttendTable(models.Model):
         )
 
     def auto_add_attend_person(self):
-        pass
+        workers = Worker.objects.filter(department=self.department,
+                                        class_number=self.get_class_number()
+                                        )
+        for worker in workers:
+            AttendPerson.objects.create(worker=worker,
+                                        attend_table=self,
+                                        is_study=worker.is_study,
+                                        job=worker.job)
 
     def get_class_number(self):
         return ClassNumberTable.objects.get(date=self.date,
@@ -50,18 +59,27 @@ class AttendTable(models.Model):
 class AttendPerson(models.Model):
     worker = models.ForeignKey('person.Worker', verbose_name='职工')
     job = models.ForeignKey('base.Job', verbose_name='职位名')
+    is_study = models.BooleanField(verbose_name="是否为学员", default=False)
     off_record = models.OneToOneField(
         'figureData.FigureUseRecord',
         verbose_name='退勤记录',
-        related_name='off_record'
+        related_name='off_record',
+        null=True,
+        blank=True
     )
     on_record = models.OneToOneField(
         'figureData.FigureUseRecord',
         verbose_name='出勤记录',
-        related_name='on_record'
+        related_name='on_record',
+        null=True,
+        blank=True
     )
     attend_table = models.ForeignKey('attend.AttendTable',
                                      verbose_name='出勤表')
+
+    @property
+    def department(self):
+        return self.job.department
 
     def __str__(self):
         return "{} {}".format(self.attend_table, self.worker)
